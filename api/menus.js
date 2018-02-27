@@ -5,10 +5,9 @@ const menuItemsRouter = require('./menuItems');
 const sqlite3 = require('sqlite3');
 const db = new sqlite3.Database(process.env.TEST_DATABASE || './database.sqlite');
 
+//check that a menu exists with the given ID, and if so attach it to request object
 menusRouter.param('menuId', (req, res, next, menuId) => {
   const sql = `SELECT * FROM Menu WHERE id = ${menuId}`;
-
-
   db.get(sql, (error, menu) => {
     if (error) {
       next(error);
@@ -21,12 +20,15 @@ menusRouter.param('menuId', (req, res, next, menuId) => {
   });
 });
 
+
+//return all the menus
 menusRouter.get('/', (req, res, next) => {
   db.all('SELECT * FROM Menu', (error, menus) => {
     res.status(200).json({menus: menus});
   });
 });
 
+//create and return new menu
 menusRouter.post('/', (req, res, next) => {
   const title = req.body.menu.title;
   if (!title) {
@@ -49,11 +51,12 @@ menusRouter.post('/', (req, res, next) => {
 });
 
 
-
+//get a menu by menu ID
 menusRouter.get('/:menuId', (req, res, next) => {
   res.status(200).json({menu: req.menu});
 });
 
+//update and return the title of an existing menu by ID
 menusRouter.put('/:menuId', (req, res, next) => {
   const title = req.body.menu.title;
 
@@ -82,8 +85,9 @@ menusRouter.put('/:menuId', (req, res, next) => {
   });
 });
 
+//delete an existing menu
 menusRouter.delete('/:menuId', (req, res, next) => {
-  //Check whether menu has any items before deleting menu
+  //First check whether menu has any items before deleting menu
   const sql = 'SELECT * FROM MenuItem WHERE menu_id = $menuId';
   const value = {$menuId: req.params.menuId};
   db.get(sql, value, (error, menuItem) => {

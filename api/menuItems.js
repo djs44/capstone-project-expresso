@@ -4,6 +4,7 @@ const menuItemsRouter = express.Router({mergeParams: true});
 const sqlite3 = require('sqlite3');
 const db = new sqlite3.Database(process.env.TEST_DATABASE || './database.sqlite');
 
+//check that a menu item exists with the request ID, then attach it to the request object
 menuItemsRouter.param('menuItemId', (req, res, next, menuItemId) => {
   const sql = `SELECT * FROM MenuItem WHERE id = $menuItemId`;
   const value = {$menuItemId: menuItemId};
@@ -20,6 +21,8 @@ menuItemsRouter.param('menuItemId', (req, res, next, menuItemId) => {
   });
 });
 
+
+//get all menu items on a given menu by menu ID
 menuItemsRouter.get('/', (req, res, next) => {
   const sql = 'SELECT * FROM MenuItem WHERE menu_id = $menuId';
   const value = {
@@ -35,6 +38,8 @@ menuItemsRouter.get('/', (req, res, next) => {
   });
 });
 
+
+//create and return new menu item
 menuItemsRouter.post('/', (req, res, next) => {
   const name = req.body.menuItem.name,
         description = req.body.menuItem.description,
@@ -67,7 +72,7 @@ menuItemsRouter.post('/', (req, res, next) => {
 });
 
 
-
+//update and return existing menu item
 menuItemsRouter.put('/:menuItemId', (req, res, next) => {
   const name = req.body.menuItem.name;
   const description = req.body.menuItem.description;
@@ -98,6 +103,7 @@ menuItemsRouter.put('/:menuItemId', (req, res, next) => {
   }
 });
 
+//delete a menu item from an existing menu
 menuItemsRouter.delete('/:menuItemId', (req, res, next) => {
   const sql = 'DELETE FROM MenuItem WHERE id = $menuItemId';
   const values = {

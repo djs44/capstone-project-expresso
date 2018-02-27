@@ -5,6 +5,8 @@ const timesheetsRouter = require('./timesheets');
 const sqlite3 = require('sqlite3');
 const db = new sqlite3.Database(process.env.TEST_DATABASE || './database.sqlite');
 
+
+//check that an employee exists with id parameter, then attach it to request object
 employeesRouter.param('employeeId', (req, res, next, employeeId) => {
   const sql = `SELECT * FROM Employee WHERE id = ${employeeId}`;
 
@@ -21,7 +23,7 @@ employeesRouter.param('employeeId', (req, res, next, employeeId) => {
 });
 
 
-
+//return all current employees
 employeesRouter.get('/', (req, res, next) => {
   db.all('SELECT * FROM Employee WHERE is_current_employee = 1',
     (err, employees) => {
@@ -33,6 +35,7 @@ employeesRouter.get('/', (req, res, next) => {
     });
 });
 
+//create new employee, add to database, and return new employee as an object
 employeesRouter.post('/', (req, res, next) => {
   const name = req.body.employee.name;
   const position = req.body.employee.position;
@@ -68,17 +71,13 @@ employeesRouter.post('/', (req, res, next) => {
 
 });
 
-
-
-
-
-employeesRouter.use('/:employeeId/timesheets', timesheetsRouter);
-
-
+//return an employee with a given employee ID
 employeesRouter.get('/:employeeId', (req, res, next) => {
   res.status(200).json({employee: req.employee});
 });
 
+
+//update an employee already in the database and return with the updated information
 employeesRouter.put('/:employeeId', (req, res, next) => {
   const name = req.body.employee.name;
   const position = req.body.employee.position;
@@ -110,6 +109,8 @@ employeesRouter.put('/:employeeId', (req, res, next) => {
   });
 });
 
+
+//delete an existing employee from the database
 employeesRouter.delete('/:employeeId', (req, res, next) => {
   const sql = 'UPDATE Employee SET is_current_employee = $isCurrentEmployee WHERE id = $employeeId';
   const values = {
@@ -130,7 +131,7 @@ employeesRouter.delete('/:employeeId', (req, res, next) => {
 });
 
 
-
+employeesRouter.use('/:employeeId/timesheets', timesheetsRouter);
 
 
 
